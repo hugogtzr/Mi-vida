@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Mi Vida"/>
+<meta name="theme-color" content="#f7f6f3"/>
+<title>Mi Vida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap"/>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
+body{background:#f7f6f3;font-family:'DM Sans',system-ui,sans-serif;padding-bottom:env(safe-area-inset-bottom);}
+input,select,textarea,button{font-family:inherit;}
+button:active{opacity:.75;}
+::-webkit-scrollbar{display:none;}
+.serif{font-family:'Lora',Georgia,serif;}
+.card{background:#fff;border:1px solid #e6e2da;border-radius:10px;padding:15px 17px;}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e6e2da;display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 2px 11px;border:none;background:none;cursor:pointer;color:#a09890;font-size:9px;font-weight:400;gap:3px;font-family:inherit;}
+.nav-btn.active{color:#1a3d16;font-weight:600;}
+.bar-wrap{background:#eeebe4;border-radius:99px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:99px;transition:width .4s ease;}
+.pill{font-size:12px;font-weight:500;padding:5px 13px;border-radius:99px;cursor:pointer;white-space:nowrap;border:1px solid #e6e2da;background:transparent;color:#6a6057;font-family:inherit;}
+.pill.active{background:#1a3d16;color:#fff;border-color:#1a3d16;}
+.pill.green.active{background:#16a34a;border-color:#16a34a;}
+.pill.red.active{background:#dc2626;border-color:#dc2626;}
+.inp{font-size:13px;padding:8px 11px;border-radius:6px;border:1px solid #e6e2da;background:#f7f6f3;color:#18150f;outline:none;width:100%;font-family:inherit;}
+.btn{font-size:13px;font-weight:500;padding:8px 15px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;border:none;font-family:inherit;}
+.btn-primary{background:#1a3d16;color:#fff;}
+.btn-ghost{background:none;color:#6a6057;border:1px solid #e6e2da;}
+.btn-green{background:#dcfce7;color:#16a34a;border:1px solid #86efac;}
+.label{font-size:11px;color:#6a6057;font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px;}
+.empty{color:#a09890;font-size:13px;text-align:center;padding:24px 0;}
+.hidden{display:none!important;}
+.tabs-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch;}
+.tabs-row::-webkit-scrollbar{display:none;}
+.mood-btn{font-size:22px;background:none;border:1px solid transparent;border-radius:8px;padding:5px 8px;cursor:pointer;transition:all .15s;}
+.mood-btn.active{background:#edf5eb;border-color:#1a3d16;transform:scale(1.2);}
+.habit-circle{width:26px;height:26px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;border:2px solid #ccc;}
+.day-cell{width:21px;height:21px;border-radius:4px;border:none;cursor:pointer;font-size:8px;transition:background .1s;font-family:inherit;}
+.streak-card{background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fbbf24;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.prompt-item{font-size:13px;color:#1a3d16;padding:6px 0;cursor:pointer;}
+.divider{height:1px;background:#eeebe4;margin:12px 0;}
+textarea{resize:vertical;border:none;outline:none;background:transparent;width:100%;font-family:'Lora',Georgia,serif;}
+</style>
+</head>
+<body>
+<div id="app" style="max-width:540px;margin:0 auto;min-height:100vh;background:#f7f6f3;padding-bottom:82px;">
+  <div id="header" style="padding:24px 22px 0;margin-bottom:20px;">
+    <div class="serif" style="font-size:24px;color:#18150f;font-weight:600;letter-spacing:-.3px;">Mi Vida</div>
+    <div id="header-date" style="font-size:12px;color:#a09890;margin-top:2px;"></div>
+    <div style="height:1px;background:#e6e2da;margin-top:16px;"></div>
+    <div id="page-title" class="serif" style="font-size:20px;color:#18150f;margin-top:14px;font-weight:600;display:none;"></div>
+  </div>
+  <div style="padding:0 22px;">
+    <div id="page-home"></div>
+    <div id="page-finance" class="hidden"></div>
+    <div id="page-goals" class="hidden"></div>
+    <div id="page-habits" class="hidden"></div>
+    <div id="page-nutrition" class="hidden"></div>
+    <div id="page-journal" class="hidden"></div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-tab="home" onclick="navigate('home')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Inicio
+  </button>
+  <button class="nav-btn" data-tab="finance" onclick="navigate('finance')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/><path d="M16 12a2 2 0 0 0 0 4h5v-4Z"/></svg>
+    Finanzas
+  </button>
+  <button class="nav-btn" data-tab="goals" onclick="navigate('goals')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+    Metas
+  </button>
+  <button class="nav-btn" data-tab="habits" onclick="navigate('habits')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    Hábitos
+  </button>
+  <button class="nav-btn" data-tab="nutrition" onclick="navigate('nutrition')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8Z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+    Comida
+  </button>
+  <button class="nav-btn" data-tab="journal" onclick="navigate('journal')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    Diario
+  </button>
+</nav>
+
+<script>
+// ─── Constants ────────────────────────────────────────────────────────────────
+const MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MEAL_TYPES=['Desayuno','Almuerzo','Cena','Snack'];
+const HABIT_COLORS=['#6366f1','#f59e0b','#10b981','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316'];
+const MOODS=[{e:'😔',l:'Difícil'},{e:'😐',l:'Regular'},{e:'🙂',l:'Bien'},{e:'😄',l:'Genial'},{e:'🤩',l:'Increíble'}];
+const DEBT_TYPES=['TDC','Préstamo personal','Préstamo familiar/amigo','Crédito automotriz','Hipoteca','Otro'];
+const EXPENSE_CATS=['Comida','Transporte','Entretenimiento','Salud','Ropa','Servicios','Educación','Otro'];
+const INCOME_CATS=['Sueldo','Freelance','Negocio','Inversión','Regalo','Otro'];
+const GOAL_CATS=['Ahorro','Deuda','Inversión','Personal','Otro'];
+const GOAL_ICONS=['🎯','💰','📈','🏋️','📚','✈️','🏠','💳','🌱','⭐'];
+const TYPE_COLOR={'TDC':'#6366f1','Préstamo personal':'#f59e0b','Préstamo familiar/amigo':'#ec4899','Crédito automotriz':'#14b8a6','Hipoteca':'#3b82f6','Otro':'#9d9790'};
+const CAT_COLOR={Ahorro:'#16a34a',Deuda:'#dc2626','Inversión':'#1d4ed8',Personal:'#7c3aed',Otro:'#d97706'};
+const TC={Desayuno:'#f59e0b',Almuerzo:'#10b981',Cena:'#6366f1',Snack:'#ec4899'};
+
+// ─── Storage ──────────────────────────────────────────────────────────────────
+const gk=(p,...a)=>`lt2_${p}_${a.join('_')}`;
+const ld=(k,fb)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch{return fb;}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const dim=(y,m)=>new Date(y,m+1,0).getDate();
+const tod=()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth(),d:d.getDate()};};
+const f$=n=>(n||0).toLocaleString('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:0,maximumFractionDigits:0});
+const fdt=(y,m,d)=>`${String(d).padStart(2,'0')} ${MONTHS[m].slice(0,3)} ${y}`;
+const el=id=>document.getElementById(id);
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+const TITLES={home:'',finance:'Finanzas',goals:'Metas',habits:'Hábitos',nutrition:'Alimentación',journal:'Diario'};
+function navigate(tab){
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  ['home','finance','goals','habits','nutrition','journal'].forEach(p=>el(`page-${p}`).classList.toggle('hidden',p!==tab));
+  const title=el('page-title');
+  if(tab==='home'){title.style.display='none';}else{title.style.display='block';title.textContent=TITLES[tab];}
+  renderPage(tab);
+}
+function renderPage(tab){
+  if(tab==='home')renderHome();
+  else if(tab==='finance')renderFinance();
+  else if(tab==='goals')renderGoals();
+  else if(tab==='habits')renderHabits();
+  else if(tab==='nutrition')renderNutrition();
+  else if(tab==='journal')renderJournal();
+}
+
+// ─── SVG ──────────────────────────────────────────────────────────────────────
+const svgPlus=(s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+const svgCheck=(s=13,c='#fff')=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+const svgTrash=(s=15)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`;
+const svgSave=(s=14)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`;
+const svgEdit=(s=15)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>`;
+const svgL=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>`;
+const svgR=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+const bar=(value,color='#1a3d16',height=6)=>`<div class="bar-wrap" style="height:${height}px"><div class="bar-fill" style="width:${Math.min(100,Math.max(0,value))}%;height:100%;background:${color}"></div></div>`;
+const navRow=(onP,onN,label)=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px"><button class="btn btn-ghost" style="padding:5px 8px" onclick="${onP}">${svgL}</button><span class="serif" style="flex:1;text-align:center;font-size:15px;font-weight:600;color:#18150f">${label}</span><button class="btn btn-ghost" style="padding:5px 8px" onclick="${onN}">${svgR}</button></div>`;
+const iBtn=(onclick,ico,color='#a09890')=>`<button onclick="${onclick}" style="background:none;border:none;cursor:pointer;color:${color};padding:3px;display:flex;align-items:center">${ico}</button>`;
+
+// ─── HOME ─────────────────────────────────────────────────────────────────────
+function renderHome(){
+  const {y,m,d}=tod();
+  const habits=ld(gk('habits'),[]);
+  const checks=ld(gk('checks',y,m),{});
+  const habitsDone=habits.filter(h=>!!checks[`${h.id}_${d}`]).length;
+  const txns=ld(gk('txns',y,m),[]);
+  const wallet=ld(gk('wallet'),0);
+  const income=txns.filter(t=>t.kind==='income').reduce((s,t)=>s+t.amount,0);
+  const expense=txns.filter(t=>t.kind==='expense').reduce((s,t)=>s+t.amount,0);
+  const debts=ld(gk('debts'),[]);
+  const totalDebt=debts.reduce((s,d)=>s+d.balance,0);
+  const balance=wallet+income-expense;
+  const goals=ld(gk('goals'),[]);
+  const active=goals.filter(g=>g.current<g.target);
+  const entry=ld(gk('journal',y,m,d),{text:'',mood:null});
+  let streak=0;
+  if(habits.length>0){for(let i=0;i<365;i++){const dt=new Date(y,m,d-i);const sy=dt.getFullYear(),sm=dt.getMonth(),sd=dt.getDate();const ch=ld(gk('checks',sy,sm),{});if(habits.every(h=>!!ch[`${h.id}_${sd}`]))streak++;else if(i>0)break;}}
+  const hour=new Date().getHours();
+  const greeting=hour<12?'Buenos días ☀️':hour<19?'Buenas tardes 🌤️':'Buenas noches 🌙';
+  const dateStr=new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
+  let html=`<div style="margin-bottom:20px"><div class="serif" style="font-size:22px;color:#18150f;font-weight:600;margin-bottom:2px">${greeting}</div><div style="font-size:13px;color:#6a6057">${dateStr}</div></div>`;
+  if(streak>0)html+=`<div class="streak-card"><span style="font-size:28px">🔥</span><div><div class="serif" style="font-size:18px;font-weight:600;color:#92400e">${streak} ${streak===1?'día':'días'} de racha</div><div style="font-size:12px;color:#b45309">¡Todos tus hábitos completados!</div></div></div>`;
+  html+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+    <div class="card" onclick="navigate('finance')" style="cursor:pointer;border-top:3px solid #16a34a"><div style="font-size:10px;color:#6a6057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Balance del mes</div><div class="serif" style="font-size:17px;font-weight:600;color:#16a34a">${f$(balance)}</div></div>
+    <div class="card" onclick="navigate('finance')" style="cursor:pointer;border-top:3px solid #dc2626"><div style="font-size:10px;color:#6a6057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Total deudas</div><div class="serif" style="font-size:17px;font-weight:600;color:#dc2626">${f$(totalDebt)}</div><div style="font-size:11px;color:#a09890;margin-top:2px">${debts.length} ${debts.length===1?'deuda':'deudas'}</div></div>
+  </div>
+  <div class="card" onclick="navigate('habits')" style="cursor:pointer;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:13px;font-weight:600;color:#18150f">Hábitos de hoy</div><div style="font-size:12px;font-weight:600;color:${habitsDone===habits.length&&habits.length>0?'#16a34a':'#6a6057'}">${habitsDone}/${habits.length}</div></div>
+    ${habits.length===0?'<div style="font-size:12px;color:#a09890">Sin hábitos aún.</div>':habits.slice(0,4).map(h=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><div style="width:14px;height:14px;border-radius:50%;background:${checks[`${h.id}_${d}`]?h.color:'#eeebe4'};border:2px solid ${h.color};flex-shrink:0;display:flex;align-items:center;justify-content:center">${checks[`${h.id}_${d}`]?svgCheck(8):''}</div><span style="font-size:13px;color:${checks[`${h.id}_${d}`]?'#a09890':'#18150f'};text-decoration:${checks[`${h.id}_${d}`]?'line-through':'none'}">${h.name}</span></div>`).join('')+(habits.length>4?`<div style="font-size:11px;color:#a09890">+${habits.length-4} más</div>`:'')}
+  </div>`;
+  if(active.length>0)html+=`<div class="card" onclick="navigate('goals')" style="cursor:pointer;margin-bottom:12px"><div style="font-size:13px;font-weight:600;color:#18150f;margin-bottom:10px">Metas activas</div>${active.slice(0,2).map(g=>{const pct=Math.round(g.current/g.target*100);return`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;color:#18150f">${g.icon} ${g.name}</span><span style="font-size:12px;color:#6a6057">${pct}%</span></div>${bar(pct,'#2d6325')}</div>`;}).join('')}</div>`;
+  html+=`<div class="card" onclick="navigate('journal')" style="cursor:pointer"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:13px;font-weight:600;color:#18150f">Diario de hoy</div>${entry.mood!==null?`<span style="font-size:18px">${MOODS[entry.mood].e}</span>`:''}</div>${entry.text?`<p style="font-size:13px;color:#6a6057;margin:0;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${entry.text}</p>`:`<div style="font-size:13px;color:#a09890">Toca para escribir tu entrada del día.</div>`}</div>`;
+  el('page-home').innerHTML=html;
+}
+
+// ─── FINANCE ─────────────────────────────────────────────────────────────────
+let finTab='overview',finYear,finMonth;
+function renderFinance(){
+  if(!finYear){const{y,m}=tod();finYear=y;finMonth=m;}
+  const txns=ld(gk('txns',finYear,finMonth),[]);
+  const wallet=ld(gk('wallet'),0);
+  const debts=ld(gk('debts'),[]);
+  const income=txns.filter(t=>t.kind==='income').reduce((s,t)=>s+t.amount,0);
+  const expense=txns.filter(t=>t.kind==='expense').reduce((s,t)=>s+t.amount,0);
+  const monthBal=income-expense;
+  const totalDebt=debts.reduce((s,d)=>s+d.balance,0);
+  const netWorth=wallet+monthBal-totalDebt;
+  let html=`<div class="tabs-row" style="margin-bottom:18px"><button class="pill${finTab==='overview'?' active':''}" onclick="setFinTab('overview')">Resumen</button><button class="pill${finTab==='txns'?' active':''}" onclick="setFinTab('txns')">Movimientos</button><button class="pill${finTab==='debts'?' active':''}" onclick="setFinTab('debts')">Deudas</button></div>`;
+  if(finTab==='overview'){
+    const expByCat={};EXPENSE_CATS.forEach(c=>{expByCat[c]=txns.filter(t=>t.kind==='expense'&&t.cat===c).reduce((s,t)=>s+t.amount,0);});
+    const topCats=Object.entries(expByCat).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+    html+=`<div class="card" style="margin-bottom:12px;border-top:3px solid ${netWorth>=0?'#16a34a':'#dc2626'}">
+      <div style="font-size:11px;color:#6a6057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Patrimonio neto</div>
+      <div class="serif" style="font-size:28px;font-weight:600;color:${netWorth>=0?'#16a34a':'#dc2626'};margin-bottom:8px">${f$(netWorth)}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span style="font-size:11px;background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:99px">Dinero: ${f$(wallet)}</span>
+        <span style="font-size:11px;background:${monthBal>=0?'#dcfce7':'#fee2e2'};color:${monthBal>=0?'#16a34a':'#dc2626'};padding:2px 8px;border-radius:99px">Mes: ${monthBal>=0?'+':''}${f$(monthBal)}</span>
+        <span style="font-size:11px;background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:99px">Deudas: -${f$(totalDebt)}</span>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:11px;color:#6a6057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Mi dinero base</div><div class="serif" style="font-size:22px;font-weight:600;color:#18150f">${f$(wallet)}</div></div><button class="btn btn-ghost" onclick="editWallet()">${svgEdit()}</button></div></div>
+    ${navRow('finPrev()','finNext()',MONTHS[finMonth]+' '+finYear)}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div class="card" style="border-top:3px solid #16a34a;padding:12px 14px"><div style="font-size:10px;color:#6a6057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Ingresos</div><div class="serif" style="font-size:17px;font-weight:600;color:#16a34a">${f$(income)}</div></div>
+      <div class="card" style="border-top:3px solid #dc2626;padding:12px 14px"><div style="font-size:10px;color:#6a6057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Gastos</div><div class="serif" style="font-size:17px;font-weight:600;color:#dc2626">${f$(expense)}</div></div>
+    </div>
+    ${topCats.length>0?`<div class="card" style="margin-bottom:12px"><div class="label">Gastos por categoría</div>${topCats.map(([cat,val])=>`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:13px;color:#18150f">${cat}</span><span style="font-size:13px;color:#dc2626">${f$(val)}</span></div>${bar(expense>0?val/expense*100:0,'#dc2626',5)}</div>`).join('')}</div>`:''}
+    ${debts.length>0?`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="label" style="margin:0">Deudas</div><span style="font-size:13px;font-weight:600;color:#dc2626">${f$(totalDebt)}</span></div>${debts.map(d=>{const pct=d.total>0?Math.round((1-d.balance/d.total)*100):100;const tc=TYPE_COLOR[d.type]||'#9d9790';return`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:13px;color:#18150f">${d.name} <span style="font-size:11px;color:${tc}">(${d.type})</span></span><span style="font-size:13px;color:#dc2626">${f$(d.balance)}</span></div>${bar(pct,tc,5)}<div style="font-size:10px;color:#a09890;margin-top:2px">Pagado: ${pct}%</div></div>`;}).join('')}</div>`:''}`;
+  }
+  if(finTab==='txns'){
+    html+=`${navRow('finPrev()','finNext()',MONTHS[finMonth]+' '+finYear)}
+    ${txns.length===0?'<div class="empty">Sin movimientos este mes.</div>':''}
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+      ${[...txns].reverse().map(t=>`<div class="card" style="display:flex;align-items:center;gap:12px;padding:11px 14px"><div style="width:8px;height:8px;border-radius:50%;background:${t.kind==='income'?'#16a34a':'#dc2626'};flex-shrink:0"></div><div style="flex:1;min-width:0"><div style="font-size:13px;color:#18150f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.label}</div><div style="font-size:11px;color:#a09890">${t.cat}</div></div><span style="font-size:14px;font-weight:600;color:${t.kind==='income'?'#16a34a':'#dc2626'};white-space:nowrap">${t.kind==='income'?'+':'-'}${f$(t.amount)}</span>${iBtn(`delTx('${t.id}')`,svgTrash())}</div>`).join('')}
+    </div>
+    <div id="tx-form-wrap"><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="showTxForm()">${svgPlus()} Agregar movimiento</button></div>`;
+  }
+  if(finTab==='debts'){
+    const td2=debts.reduce((s,d)=>s+d.balance,0);
+    html+=`<div class="card" style="margin-bottom:14px;border-top:3px solid #dc2626;padding:12px 16px"><div style="font-size:11px;color:#6a6057;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Total adeudado</div><div class="serif" style="font-size:24px;font-weight:600;color:#dc2626">${f$(td2)}</div><div style="font-size:12px;color:#a09890;margin-top:2px">${debts.length} ${debts.length===1?'deuda activa':'deudas activas'}</div></div>
+    ${debts.length===0?'<div class="empty">Sin deudas registradas. ¡Excelente!</div>':''}
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+      ${debts.map(d=>{const pct=d.total>0?Math.round((1-d.balance/d.total)*100):100;const tc=TYPE_COLOR[d.type]||'#9d9790';return`<div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><div><div style="font-size:14px;font-weight:600;color:#18150f">${d.name}</div><span style="font-size:11px;background:${tc}22;color:${tc};padding:2px 8px;border-radius:99px;font-weight:500">${d.type}</span></div><div style="text-align:right"><div class="serif" style="font-size:16px;font-weight:600;color:#dc2626">${f$(d.balance)}</div><div style="font-size:11px;color:#a09890">de ${f$(d.total)}</div></div></div><div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;color:#6a6057">Progreso de pago</span><span style="font-size:11px;color:${tc};font-weight:600">${pct}%</span></div>${bar(pct,tc,7)}</div>${d.minPay>0?`<div style="font-size:11px;color:#6a6057;margin-bottom:10px">Pago mínimo: ${f$(d.minPay)}</div>`:''}<div style="display:flex;gap:8px"><button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="editDebtForm('${d.id}')">${svgEdit()} Editar</button><button class="btn btn-green" style="flex:1;justify-content:center" onclick="payDebt('${d.id}')">Abonar</button>${iBtn(`delDebt('${d.id}')`,svgTrash())}</div></div>`;}).join('')}
+    </div>
+    <div id="debt-form-wrap"><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="showDebtForm()">${svgPlus()} Registrar deuda</button></div>`;
+  }
+  el('page-finance').innerHTML=html;
+}
+function setFinTab(t){finTab=t;renderFinance();}
+function finPrev(){if(finMonth===0){finYear--;finMonth=11;}else finMonth--;renderFinance();}
+function finNext(){if(finMonth===11){finYear++;finMonth=0;}else finMonth++;renderFinance();}
+function editWallet(){const cur=ld(gk('wallet'),0);const val=prompt('¿Cuánto dinero tienes actualmente?',cur);if(val!==null&&!isNaN(parseFloat(val))){sv(gk('wallet'),parseFloat(val));renderFinance();}}
+let txKind='income';
+function showTxForm(){el('tx-form-wrap').innerHTML=`<div class="card"><div class="label">Nuevo movimiento</div><div class="tabs-row" style="margin-bottom:10px"><button class="pill green active" id="pill-income" onclick="setTxKind('income')">Ingreso</button><button class="pill red" id="pill-expense" onclick="setTxKind('expense')">Gasto</button></div><div style="display:flex;flex-direction:column;gap:8px"><select class="inp" id="tx-cat">${INCOME_CATS.map(c=>`<option>${c}</option>`).join('')}</select><input class="inp" id="tx-label" placeholder="Descripción"/><input class="inp" type="number" id="tx-amount" placeholder="Monto" inputmode="decimal"/><div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="addTx()">${svgSave()} Guardar</button><button class="btn btn-ghost" onclick="renderFinance()">Cancelar</button></div></div></div>`;txKind='income';el('tx-label').focus();}
+function setTxKind(k){txKind=k;document.querySelectorAll('#tx-form-wrap .pill').forEach(p=>{p.classList.toggle('active',p.id===`pill-${k}`);});el('tx-cat').innerHTML=(k==='income'?INCOME_CATS:EXPENSE_CATS).map(c=>`<option>${c}</option>`).join('');}
+function addTx(){const label=el('tx-label').value.trim();const amount=parseFloat(el('tx-amount').value);const cat=el('tx-cat').value;if(!label||!amount)return;const txns=ld(gk('txns',finYear,finMonth),[]);txns.push({id:uid(),kind:txKind,cat,label,amount,date:new Date().toISOString()});sv(gk('txns',finYear,finMonth),txns);renderFinance();}
+function delTx(id){if(!confirm('¿Eliminar?'))return;sv(gk('txns',finYear,finMonth),ld(gk('txns',finYear,finMonth),[]).filter(t=>t.id!==id));renderFinance();}
+let editDebtId=null;
+function showDebtForm(d){editDebtId=d?d.id:null;el('debt-form-wrap').innerHTML=`<div class="card"><div class="label">${d?'Editar':'Nueva'} deuda</div><div style="display:flex;flex-direction:column;gap:8px"><input class="inp" id="debt-name" placeholder="Nombre (ej. TDC Banamex)" value="${d?d.name:''}"/><select class="inp" id="debt-type">${DEBT_TYPES.map(t=>`<option${d&&d.type===t?' selected':''}>${t}</option>`).join('')}</select><input class="inp" type="number" id="debt-total" placeholder="Monto original" value="${d?d.total:''}" inputmode="decimal"/><input class="inp" type="number" id="debt-balance" placeholder="Saldo pendiente" value="${d?d.balance:''}" inputmode="decimal"/><input class="inp" type="number" id="debt-minpay" placeholder="Pago mínimo (opcional)" value="${d&&d.minPay?d.minPay:''}" inputmode="decimal"/><div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="saveDebt()">${svgSave()} Guardar</button><button class="btn btn-ghost" onclick="renderFinance()">Cancelar</button></div></div></div>`;}
+function editDebtForm(id){showDebtForm(ld(gk('debts'),[]).find(x=>x.id===id));}
+function saveDebt(){const name=el('debt-name').value.trim();const balance=parseFloat(el('debt-balance').value);if(!name||!balance)return;const obj={name,type:el('debt-type').value,total:parseFloat(el('debt-total').value)||balance,balance,minPay:parseFloat(el('debt-minpay').value)||0};let debts=ld(gk('debts'),[]);if(editDebtId)debts=debts.map(d=>d.id===editDebtId?{...d,...obj}:d);else debts.push({id:uid(),...obj});sv(gk('debts'),debts);editDebtId=null;renderFinance();}
+function delDebt(id){if(!confirm('¿Eliminar esta deuda?'))return;sv(gk('debts'),ld(gk('debts'),[]).filter(d=>d.id!==id));renderFinance();}
+function payDebt(id){const a=parseFloat(prompt('¿Cuánto abonás?')||'0');if(!a||a<=0)return;sv(gk('debts'),ld(gk('debts'),[]).map(d=>d.id===id?{...d,balance:Math.max(0,d.balance-a)}:d));renderFinance();}
+
+// ─── GOALS ───────────────────────────────────────────────────────────────────
+function renderGoals(){
+  const goals=ld(gk('goals'),[]);
+  const active=goals.filter(g=>g.current<g.target);
+  const done=goals.filter(g=>g.current>=g.target);
+  let html='';
+  if(goals.length===0)html='<div class="empty">Agrega tu primera meta.</div>';
+  if(active.length>0)html+=`<div class="label">En progreso</div><div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">${active.map(g=>{const pct=Math.round(g.current/g.target*100);const cc=CAT_COLOR[g.cat]||'#1a3d16';const isMon=g.target>100;return`<div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:22px">${g.icon}</span><div><div style="font-size:14px;font-weight:600;color:#18150f">${g.name}</div><span style="font-size:11px;background:${cc}22;color:${cc};padding:2px 7px;border-radius:99px">${g.cat}</span></div></div><div style="text-align:right"><div class="serif" style="font-size:15px;font-weight:600;color:${cc}">${isMon?f$(g.current):g.current}</div><div style="font-size:11px;color:#a09890">de ${isMon?f$(g.target):g.target}</div></div></div><div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;color:#6a6057">Progreso</span><span style="font-size:11px;font-weight:600;color:${cc}">${pct}%</span></div>${bar(pct,cc,8)}</div>${g.notes?`<div style="font-size:12px;color:#6a6057;margin-bottom:10px;font-style:italic">${g.notes}</div>`:''}<div style="display:flex;gap:8px"><button class="btn btn-primary" style="flex:1;justify-content:center" onclick="contributeGoal('${g.id}')">${svgPlus(14)} Abonar</button><button class="btn btn-ghost" onclick="editGoalForm('${g.id}')">${svgEdit()}</button>${iBtn(`delGoal('${g.id}')`,svgTrash())}</div></div>`;}).join('')}</div>`;
+  if(done.length>0)html+=`<div class="label">✅ Completadas</div><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">${done.map(g=>`<div class="card" style="background:#edf5eb;border-color:#1a3d1622"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#1a3d16;font-weight:500">${g.icon} ${g.name}</span><div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:#16a34a;font-weight:600">¡Logrado! 🎉</span>${iBtn(`delGoal('${g.id}')`,svgTrash())}</div></div></div>`).join('')}</div>`;
+  html+=`<div id="goal-form-wrap"><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="showGoalForm()">${svgPlus()} Nueva meta</button></div>`;
+  el('page-goals').innerHTML=html;
+}
+function showGoalForm(g){el('goal-form-wrap').innerHTML=`<div class="card"><div class="label">${g?'Editar':'Nueva'} meta</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px" id="icon-picker">${GOAL_ICONS.map(ic=>`<button onclick="selGoalIcon(this,'${ic}')" data-icon="${ic}" style="font-size:20px;background:${g&&g.icon===ic?'#edf5eb':'none'};border:1px solid ${g&&g.icon===ic?'#1a3d16':'#e6e2da'};border-radius:6px;padding:4px 8px;cursor:pointer">${ic}</button>`).join('')}</div><input type="hidden" id="goal-icon-val" value="${g?g.icon:'🎯'}"/><div style="display:flex;flex-direction:column;gap:8px"><input class="inp" id="goal-name" placeholder="Nombre de la meta" value="${g?g.name:''}"/><select class="inp" id="goal-cat">${GOAL_CATS.map(c=>`<option${g&&g.cat===c?' selected':''}>${c}</option>`).join('')}</select><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input class="inp" type="number" id="goal-target" placeholder="Meta total" value="${g?g.target:''}" inputmode="decimal"/><input class="inp" type="number" id="goal-current" placeholder="Avance actual" value="${g?g.current:0}" inputmode="decimal"/></div><input class="inp" id="goal-notes" placeholder="Notas (opcional)" value="${g?g.notes||'':''}"/><div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="saveGoal(${g?`'${g.id}'`:null})">${svgSave()} Guardar</button><button class="btn btn-ghost" onclick="renderGoals()">Cancelar</button></div></div></div>`;}
+function selGoalIcon(btn,ic){document.querySelectorAll('#icon-picker button').forEach(b=>{b.style.background='none';b.style.borderColor='#e6e2da';});btn.style.background='#edf5eb';btn.style.borderColor='#1a3d16';el('goal-icon-val').value=ic;}
+function editGoalForm(id){showGoalForm(ld(gk('goals'),[]).find(g=>g.id===id));}
+function saveGoal(editId){const name=el('goal-name').value.trim();const target=parseFloat(el('goal-target').value);if(!name||!target)return;const obj={name,icon:el('goal-icon-val').value||'🎯',cat:el('goal-cat').value,target,current:parseFloat(el('goal-current').value)||0,notes:el('goal-notes').value.trim()};let goals=ld(gk('goals'),[]);if(editId)goals=goals.map(g=>g.id===editId?{...g,...obj}:g);else goals.push({id:uid(),...obj});sv(gk('goals'),goals);renderGoals();}
+function delGoal(id){if(!confirm('¿Eliminar?'))return;sv(gk('goals'),ld(gk('goals'),[]).filter(g=>g.id!==id));renderGoals();}
+function contributeGoal(id){const a=parseFloat(prompt('¿Cuánto abonás?')||'0');if(!a||a<=0)return;sv(gk('goals'),ld(gk('goals'),[]).map(g=>g.id===id?{...g,current:Math.min(g.target,g.current+a)}:g));renderGoals();}
+
+// ─── HABITS ──────────────────────────────────────────────────────────────────
+let habView='today';
+function renderHabits(){
+  const{y,m,d:td}=tod();const dim_=dim(y,m);
+  const habits=ld(gk('habits'),[]);const checks=ld(gk('checks',y,m),{});
+  const ckd=(hid,day)=>!!checks[`${hid}_${day}`];
+  const pct=hid=>{const done=Array.from({length:td},(_,i)=>ckd(hid,i+1)).filter(Boolean).length;return td>0?Math.round(done/td*100):0;};
+  let html=`<div class="tabs-row" style="margin-bottom:18px"><button class="pill${habView==='today'?' active':''}" onclick="setHabView('today')">Hoy</button><button class="pill${habView==='grid'?' active':''}" onclick="setHabView('grid')">Progreso</button></div>`;
+  if(habits.length===0)html+=`<div class="empty">Agrega tu primer hábito. ¡Pequeños pasos, grandes cambios!</div>`;
+  if(habView==='today')html+=`<div style="display:flex;flex-direction:column;gap:10px">${habits.map(h=>`<div class="card" style="display:flex;align-items:center;gap:12px"><button class="habit-circle" onclick="toggleHabit('${h.id}',${td})" style="border-color:${h.color};background:${ckd(h.id,td)?h.color:'transparent'}">${ckd(h.id,td)?svgCheck(12):''}</button><div style="flex:1"><div style="font-size:14px;color:#18150f;margin-bottom:4px">${h.name}</div>${bar(pct(h.id),h.color)}<div style="font-size:11px;color:#a09890;margin-top:2px">${pct(h.id)}% este mes</div></div>${iBtn(`delHabit('${h.id}')`,svgTrash())}</div>`).join('')}</div>`;
+  if(habView==='grid')html+=`<div style="display:flex;flex-direction:column;gap:12px">${habits.map(h=>{const total=Array.from({length:dim_},(_,i)=>ckd(h.id,i+1)).filter(Boolean).length;return`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:14px;font-weight:500;color:#18150f">${h.name}</span><span style="font-size:12px;color:${h.color};font-weight:600">${total}/${dim_} días</span></div><div style="display:flex;flex-wrap:wrap;gap:3px">${Array.from({length:dim_},(_,i)=>i+1).map(day=>`<button class="day-cell" onclick="toggleHabit('${h.id}',${day})" style="background:${ckd(h.id,day)?h.color:'#eeebe4'};color:${ckd(h.id,day)?'#fff':'#a09890'}">${day}</button>`).join('')}</div></div>`;}).join('')}</div>`;
+  html+=`<div style="margin-top:12px" id="habit-add-wrap"><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="showHabitForm()">${svgPlus()} Nuevo hábito</button></div>`;
+  el('page-habits').innerHTML=html;
+}
+function setHabView(v){habView=v;renderHabits();}
+function toggleHabit(hid,day){const{y,m}=tod();const checks=ld(gk('checks',y,m),{});const k=`${hid}_${day}`;checks[k]=!checks[k];sv(gk('checks',y,m),checks);renderHabits();}
+function showHabitForm(){el('habit-add-wrap').innerHTML=`<div class="card"><div style="display:flex;gap:8px"><input class="inp" id="habit-name" placeholder="Nombre del hábito" style="flex:1"/><button class="btn btn-primary" onclick="addHabit()">${svgSave()}</button><button class="btn btn-ghost" onclick="renderHabits()">✕</button></div></div>`;el('habit-name').focus();el('habit-name').addEventListener('keydown',e=>{if(e.key==='Enter')addHabit();});}
+function addHabit(){const name=el('habit-name').value.trim();if(!name)return;const habits=ld(gk('habits'),[]);habits.push({id:uid(),name,color:HABIT_COLORS[habits.length%HABIT_COLORS.length]});sv(gk('habits'),habits);renderHabits();}
+function delHabit(id){if(!confirm('¿Eliminar este hábito?'))return;sv(gk('habits'),ld(gk('habits'),[]).filter(h=>h.id!==id));renderHabits();}
+
+// ─── NUTRITION ───────────────────────────────────────────────────────────────
+let nutSel=null;
+function renderNutrition(){
+  if(!nutSel)nutSel=tod();
+  const{y,m,d}=nutSel;const meals=ld(gk('meals',y,m,d),[]);
+  const byType=MEAL_TYPES.reduce((a,t)=>({...a,[t]:meals.filter(x=>x.type===t)}),{});
+  let html=`${navRow('nutShift(-1)','nutShift(1)',fdt(y,m,d))}${MEAL_TYPES.map(type=>`<div style="margin-bottom:16px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div style="width:8px;height:8px;border-radius:50%;background:${TC[type]}"></div><span style="font-size:13px;font-weight:600;color:#18150f">${type}</span></div>${byType[type].length===0?`<div style="font-size:13px;color:#a09890;padding-left:16px">—</div>`:byType[type].map(item=>`<div style="display:flex;justify-content:space-between;align-items:center;padding-left:16px;padding-bottom:6px"><span style="font-size:13px;color:#18150f">${item.desc}</span>${iBtn(`delMeal('${item.id}')`,svgTrash())}</div>`).join('')}</div>`).join('')}<div id="meal-form-wrap"><button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" onclick="showMealForm()">${svgPlus()} Registrar comida</button></div>`;
+  el('page-nutrition').innerHTML=html;
+}
+function nutShift(n){const dt=new Date(nutSel.y,nutSel.m,nutSel.d+n);nutSel={y:dt.getFullYear(),m:dt.getMonth(),d:dt.getDate()};renderNutrition();}
+function showMealForm(){el('meal-form-wrap').innerHTML=`<div class="card" style="margin-top:10px"><div class="tabs-row" style="margin-bottom:10px">${MEAL_TYPES.map((t,i)=>`<button class="pill${i===0?' active':''}" onclick="this.closest('.tabs-row').querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));this.classList.add('active');el('meal-type-val').value='${t}'">${t}</button>`).join('')}</div><input type="hidden" id="meal-type-val" value="Desayuno"/><input class="inp" id="meal-desc" placeholder="¿Qué comiste?" style="margin-bottom:10px"/><div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="addMeal()">${svgSave()} Guardar</button><button class="btn btn-ghost" onclick="renderNutrition()">Cancelar</button></div></div>`;el('meal-desc').focus();el('meal-desc').addEventListener('keydown',e=>{if(e.key==='Enter')addMeal();});}
+function addMeal(){const desc=el('meal-desc').value.trim();const type=el('meal-type-val').value;if(!desc)return;const{y,m,d}=nutSel;const meals=ld(gk('meals',y,m,d),[]);meals.push({id:uid(),type,desc});sv(gk('meals',y,m,d),meals);renderNutrition();}
+function delMeal(id){const{y,m,d}=nutSel;sv(gk('meals',y,m,d),ld(gk('meals',y,m,d),[]).filter(x=>x.id!==id));renderNutrition();}
+
+// ─── JOURNAL ─────────────────────────────────────────────────────────────────
+let jSel=null,jView='write',jSearch='';
+function renderJournal(){
+  if(!jSel)jSel=tod();
+  const{y,m,d}=tod();const entry=ld(gk('journal',jSel.y,jSel.m,jSel.d),{text:'',mood:null});
+  const history=(()=>{const es=[];for(let i=0;i<120;i++){const dt=new Date(y,m,d-i);const sd={y:dt.getFullYear(),m:dt.getMonth(),d:dt.getDate()};const e=ld(gk('journal',sd.y,sd.m,sd.d),null);if(e&&e.text&&e.text.trim())es.push({...sd,...e,dateLabel:fdt(sd.y,sd.m,sd.d)});}return es;})();
+  const filtered=history.filter(e=>!jSearch.trim()||e.text.toLowerCase().includes(jSearch.toLowerCase())||e.dateLabel.toLowerCase().includes(jSearch.toLowerCase()));
+  const wc=entry.text.trim()?entry.text.trim().split(/\s+/).length:0;
+  const isToday=jSel.y===y&&jSel.m===m&&jSel.d===d;
+  let html=`<div class="tabs-row" style="margin-bottom:18px"><button class="pill${jView==='write'?' active':''}" onclick="setJView('write')">Escribir</button><button class="pill${jView==='history'?' active':''}" onclick="setJView('history')">Historial ${history.length>0?`(${history.length})`:''}</button></div>`;
+  if(jView==='write'){
+    html+=`${navRow('jShift(-1)','jShift(1)',fdt(jSel.y,jSel.m,jSel.d)+(isToday?'<span style="font-size:11px;color:#1a3d16;margin-left:8px">Hoy</span>':''))}
+    <div class="card" style="margin-bottom:12px"><div class="label">¿Cómo fue tu día?</div><div style="display:flex;gap:4px;justify-content:space-around">${MOODS.map((mood,i)=>`<button class="mood-btn${entry.mood===i?' active':''}" onclick="setMood(${i})">${mood.e}</button>`).join('')}</div>${entry.mood!==null?`<div style="font-size:12px;color:#1a3d16;text-align:center;margin-top:8px;font-weight:500">${MOODS[entry.mood].l}</div>`:''}</div>
+    <div class="card" style="margin-bottom:12px"><div class="label">Tu entrada</div><textarea id="journal-ta" rows="10" placeholder="Escribe libremente...&#10;&#10;¿Qué lograste hoy? ¿Qué aprendiste? ¿Cómo te sentiste?" style="font-size:15px;line-height:1.75;color:#18150f;box-sizing:border-box" oninput="autoSaveJournal(this)">${entry.text}</textarea><div class="divider"></div><div style="display:flex;justify-content:space-between;align-items:center"><span id="j-wc" style="font-size:11px;color:#a09890">${wc} palabras</span><button class="btn btn-primary" id="j-save-btn" onclick="saveJournal()">${svgSave()} Guardar</button></div></div>
+
+```
+<div class="card" style="background:#edf5eb;border-color:#1a3d1622"><div class="label">Prompts para reflexionar</div>${['¿Cuál fue el mejor momento del día?','¿Qué me costó trabajo? ¿Cómo lo manejé?','¿Qué haría diferente mañana?','¿Por qué estoy agradecido hoy?'].map((p,i,arr)=>`<div class="prompt-item" onclick="insertPrompt(this)" data-p="${p}" style="border-bottom:${i<arr.length-1?'1px dashed #e6e2da':'none'}">${p}</div>`).join('')}</div>`;
+```
+
+}
+if(jView===‘history’){
+html+=`<div style="position:relative;margin-bottom:14px"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#a09890;pointer-events:none;display:flex"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><input class="inp" placeholder="Buscar en tu diario…" value="${jSearch}" oninput="jSearchChange(this.value)" style="padding-left:36px"/></div> ${filtered.length===0?`<div class="empty">${history.length===0?‘Aún no tienes entradas.’:‘Sin resultados.’}</div>`:''} <div style="display:flex;flex-direction:column;gap:10px">${filtered.map(e=>`<div class="card" onclick="openJournalEntry(${e.y},${e.m},${e.d})" style="cursor:pointer"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div style="display:flex;align-items:center;gap:8px"><span class="serif" style="font-size:14px;font-weight:600;color:#18150f">${e.dateLabel}</span>${e.mood!==null?`<span style="font-size:16px">${MOODS[e.mood].e}</span>`:’’}</div><span style="font-size:11px;color:#a09890">${e.text.trim().split(/\s+/).length} palabras</span></div><p style="font-size:13px;color:#6a6057;margin:0;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${e.text}</p></div>`).join('')}</div>`;
+}
+el(‘page-journal’).innerHTML=html;
+}
+function setJView(v){jView=v;renderJournal();}
+function jShift(n){const dt=new Date(jSel.y,jSel.m,jSel.d+n);jSel={y:dt.getFullYear(),m:dt.getMonth(),d:dt.getDate()};renderJournal();}
+function jSearchChange(v){jSearch=v;renderJournal();}
+function openJournalEntry(y,m,d){jSel={y,m,d};jView=‘write’;renderJournal();}
+function setMood(i){const entry=ld(gk(‘journal’,jSel.y,jSel.m,jSel.d),{text:’’,mood:null});entry.mood=entry.mood===i?null:i;sv(gk(‘journal’,jSel.y,jSel.m,jSel.d),entry);renderJournal();}
+function autoSaveJournal(ta){const wc=ta.value.trim()?ta.value.trim().split(/\s+/).length:0;const wcEl=el(‘j-wc’);if(wcEl)wcEl.textContent=`${wc} palabras`;const entry=ld(gk(‘journal’,jSel.y,jSel.m,jSel.d),{text:’’,mood:null});entry.text=ta.value;sv(gk(‘journal’,jSel.y,jSel.m,jSel.d),entry);}
+function saveJournal(){const ta=el(‘journal-ta’);if(!ta)return;const entry=ld(gk(‘journal’,jSel.y,jSel.m,jSel.d),{text:’’,mood:null});entry.text=ta.value;sv(gk(‘journal’,jSel.y,jSel.m,jSel.d),entry);const btn=el(‘j-save-btn’);if(btn){btn.innerHTML=’¡Guardado ✓’;setTimeout(()=>{if(el(‘j-save-btn’))el(‘j-save-btn’).innerHTML=svgSave()+’ Guardar’;},2000);}}
+function insertPrompt(div){const p=div.dataset.p;const ta=el(‘journal-ta’);if(!ta)return;const sep=ta.value?’\n\n’:’’;ta.value+=sep+’• ‘+p+’ ’;ta.focus();autoSaveJournal(ta);}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+document.addEventListener(‘DOMContentLoaded’,()=>{
+el(‘header-date’).textContent=new Date().toLocaleDateString(‘es-MX’,{weekday:‘long’,year:‘numeric’,month:‘long’,day:‘numeric’});
+const{y,m}=tod();finYear=y;finMonth=m;
+renderHome();
+if(‘serviceWorker’ in navigator){
+const blob=new Blob([`const C='mi-vida-v1';self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));});`],{type:‘application/javascript’});
+navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+}
+});
+</script>
+
+</body>
+</html>
